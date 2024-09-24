@@ -1,16 +1,37 @@
 <?php
 
-namespace App\Interfaces;
+namespace App\interfaces;
 
 interface IBaseService
 {
-    public function paginatedList($data = []);
+    /**
+     * @param array $data
+     * @return mixed
+     */
+    public function paginatedList(array $data): mixed;
 
-    public function createModel($data);
+    /**
+     * @param array $data
+     * @return mixed
+     */
+    public function createModel(array $data): mixed;
 
-    public function updateModel($data, $id);
+    /**
+     * @param array $data
+     * @param int $id
+     * @return mixed
+     */
+    public function updateModel(array $data, int $id): mixed;
 
-    public function deleteModel($id);
+    /**
+     * @param int $id
+     * @return mixed
+     */
+    public function deleteModel(int $id): mixed;
 
-    public function getModelById($id);
+    /**
+     * @param int $id
+     * @return mixed
+     */
+    public function getModelById(int $id): mixed;
 }

@@ -2,31 +2,36 @@
 
 namespace App\Providers;
 
+/*use App\interfaces\{IBaseRepository, IBaseService};
+use App\Repositories\BaseRepository;
+use App\Services\BaseService;*/
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
-    //
+        /*$this->app->singleton(IBaseService::class, BaseService::class);
+        $this->app->singleton(IBaseRepository::class, BaseRepository::class);*/
     }
 
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        if (env('APP_ENV') == 'production') {
-            \URL::forceScheme('https');
+        Passport::tokensExpireIn(now()->addDays(15));
+        Passport::refreshTokensExpireIn(now()->addDays(30));
+        Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+
+        if ($this->app->environment('local'))
+        {
+            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+            $this->app->register(TelescopeServiceProvider::class);
         }
-        Schema::defaultStringLength(191);
     }
 }

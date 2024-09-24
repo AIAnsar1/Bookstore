@@ -12,6 +12,8 @@ class EmailVerificationCodeRepository extends BaseRepository
     }
 
     /**
+     * @param $email
+     * @return \App\Models\BaseModel|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
      * @throws \Throwable
      */
     public function findByEmail($email)

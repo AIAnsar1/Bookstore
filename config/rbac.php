@@ -1,293 +1,236 @@
 <?php
 
 
+
 return [
+
+
+    /*
+    |--------------------------------------------------------------------------
+    |  SUPER_ADMIN
+    |--------------------------------------------------------------------------
+    |
+    | permission roles for SUPER_ADMIN
+    | just add array controllers methods
+    |
+    |
+    */
     'super_admin' => [
-        'author' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'brand' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'category' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'country' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'faq' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'founder' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'genre' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'payment' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'product' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'productrelaise' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'role' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'status' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'tarife' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'user' => [
+        'users' => [
             'index',
             'store',
             'show',
             'update',
             'destroy',
             'roles',
-            'sendEmailVerification',
+            'checkUserToken',
+            'updateYourself',
+            'resetPassword',
+            'logout',
+        ],
+        'countries' => [
+            'index',
+            'store',
+            'show',
+            'update',
+            'destroy',
+        ],
+        'check-email-verification' => [
             'checkEmailVerification',
         ],
     ],
+
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MODERATOR
+    |--------------------------------------------------------------------------
+    |
+    | permission roles for MODERATOR
+    | just add array controllers methods
+    |
+    |
+    */
     'moderator' => [
-        'author' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'brand' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'category' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'faq' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'founder' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'genre' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'product' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'productrelaise' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'tarife' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'user' => [
+        'users' => [
             'index',
             'store',
             'show',
             'update',
             'destroy',
             'roles',
-            'sendEmailVerification',
+            'checkUserToken',
+            'updateYourself',
+            'resetPassword',
+            'logout',
+        ],
+        'countries' => [
+            'index',
+            'store',
+            'show',
+            'update',
+            'destroy',
+        ],
+        'check-email-verification' => [
             'checkEmailVerification',
         ],
     ],
+
+
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EDITOR
+    |--------------------------------------------------------------------------
+    |
+    | permission roles for EDITOR
+    | just add array controllers methods
+    |
+    |
+    */
     'editor' => [
-        'author' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'brand' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'category' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'faq' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'founder' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'genre' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'product' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'productrelaise' => [
-            'index',
-            'store',
-            'show',
-            'update',
-            'destroy',
-        ],
-        'user' => [
+        'users' => [
             'index',
             'store',
             'show',
             'update',
             'destroy',
             'roles',
-            'sendEmailVerification',
-            'checkEmailVerification',
+            'checkUserToken',
+            'updateYourself',
+            'resetPassword',
+            'logout',
         ],
-        'tarife' => [
+        'countries' => [
             'index',
             'store',
             'show',
             'update',
             'destroy',
         ],
+        'check-email-verification' => [
+            'checkEmailVerification',
+        ],
     ],
+
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | USER
+    |--------------------------------------------------------------------------
+    |
+    | permission roles for SUPER USER
+    | just add array controllers methods
+    |
+    |
+    */
     'user' => [
-        'user' => [
+        'users' => [
             'index',
             'store',
             'show',
             'update',
             'destroy',
             'roles',
-            'sendEmailVerification',
+            'checkUserToken',
+            'updateYourself',
+            'resetPassword',
+            'logout',
+        ],
+        'countries' => [
+            'index',
+            'store',
+            'show',
+            'update',
+            'destroy',
+        ],
+        'check-email-verification' => [
             'checkEmailVerification',
         ],
     ],
-    'superuser' => [
-        'user' => [
+
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUPER_USER
+    |--------------------------------------------------------------------------
+    |
+    | permission roles for SUPER_USER
+    | just add array controllers methods
+    |
+    |
+    */
+    'super_user' => [
+        'users' => [
             'index',
             'store',
             'show',
             'update',
             'destroy',
             'roles',
-            'sendEmailVerification',
+            'checkUserToken',
+            'updateYourself',
+            'resetPassword',
+            'logout',
+        ],
+        'countries' => [
+            'index',
+            'store',
+            'show',
+            'update',
+            'destroy',
+        ],
+        'check-email-verification' => [
             'checkEmailVerification',
         ],
     ],
-    'newuser' => [
-        'user' => [
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NEW_USER
+    |--------------------------------------------------------------------------
+    |
+    | permission roles for NEW_USER
+    | just add array controllers methods
+    |
+    |
+    */
+    'new_user' => [
+        'users' => [
             'index',
             'store',
             'show',
             'update',
             'destroy',
             'roles',
-            'sendEmailVerification',
+            'checkUserToken',
+            'updateYourself',
+            'resetPassword',
+            'logout',
+        ],
+        'countries' => [
+            'index',
+            'store',
+            'show',
+            'update',
+            'destroy',
+        ],
+        'check-email-verification' => [
             'checkEmailVerification',
         ],
     ],

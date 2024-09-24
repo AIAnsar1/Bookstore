@@ -1,204 +1,82 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Http\Resources\StatusResource;
+use Illuminate\Http\Request;
 use Throwable;
-use App\Models\status;
-use App\Services\statusService;
+use App\Models\Status;
+use App\Services\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Symfony\Component\HttpFoundation\Request;
-use App\Http\Requests\StorestatusRequest;
-use App\Http\Requests\UpdatestatusRequest;
+use App\Http\Requests\StoreRequest\StoreStatusRequest;
+use App\Http\Requests\UpdateRequest\UpdateStatusRequest;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-/**
- * Class statusControllerController
- * @package  App\Http\Controllers
- */
-class statusController extends Controller
+class StatusController extends Controller
 {
-    private statusService $service;
+    /**
+     * @var StatusService
+     */
+    private StatusService $service;
 
-    public function __construct(statusService $service)
+    /**
+     * @param StatusService $service
+     */
+    public function __construct(StatusService $service)
     {
         $this->service = $service;
     }
 
     /**
-     * @OA\Get(
-     *  path="/api/status",
-     *  operationId="indexstatus",
-     *  tags={"statuss"},
-     *  summary="Get list of status",
-     *  description="Returns list of status",
-     *  @OA\Response(response=200, description="Successful operation",
-     *    @OA\JsonContent(ref="#/components/schemas/status"),
-     *  ),
-     * )
-     *
-     * Display a listing of status.
-     * @return LengthAwarePaginator
+     * @param Request $request
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      * @throws Throwable
      */
-    public function index(Request $request): LengthAwarePaginator
+    public function index(Request $request)
     {
-        return $this->service->paginatedList([], $request->has('all'));
+        return StatusResource::collection( $this->service->paginatedList( $request->all() ) );
     }
 
     /**
-     * @OA\Post(
-     *  operationId="storestatus",
-     *  summary="Insert a new status",
-     *  description="Insert a new status",
-     *  tags={"statuss"},
-     *  path="/api/status",
-     *  @OA\RequestBody(
-     *    description="status to create",
-     *    required=true,
-     *    @OA\MediaType(
-     *      mediaType="application/json",
-     *      @OA\Schema(
-     *      @OA\Property(
-     *      title="data",
-     *      property="data",
-     *      type="object",
-     *      ref="#/components/schemas/status")
-     *     )
-     *    )
-     *  ),
-     *  @OA\Response(response="201",description="status created",
-     *     @OA\JsonContent(
-     *      @OA\Property(
-     *       title="data",
-     *       property="data",
-     *       type="object",
-     *       ref="#/components/schemas/status"
-     *      ),
-     *    ),
-     *  ),
-     *  @OA\Response(response=422,description="Validation exception"),
-     * )
-     *
-     * @param StorestatusRequest $request
-     * @return array|Builder|Collection|status|Builder[]|status[]
+     * @param StoreStatusRequest $request
+     * @return array|Builder|Collection|Status
      * @throws Throwable
      */
-    public function store(StorestatusRequest $request): array |Builder|Collection|status
+    public function store(StoreStatusRequest $request): array |Builder|Collection|Status
     {
-        return $this->service->createModel($request->validated('data'));
+        return $this->service->createModel($request->validated());
 
     }
 
     /**
-     * @OA\Get(
-     *   path="/api/status/{status_id}",
-     *   summary="Show a status from his Id",
-     *   description="Show a status from his Id",
-     *   operationId="showstatus",
-     *   tags={"statuss"},
-     *   @OA\Parameter(ref="#/components/parameters/status--id"),
-     *   @OA\Response(
-     *     response=200,
-     *     description="Successful operation",
-     *       @OA\JsonContent(
-     *       @OA\Property(
-     *       title="data",
-     *       property="data",
-     *       type="object",
-     *       ref="#/components/schemas/status"
-     *       ),
-     *     ),
-     *   ),
-     *   @OA\Response(response="404",description="status not found"),
-     * )
-     *
      * @param $crudgeneratorId
-     * @return array|Builder|Collection|status
+     * @return StatusResource
      * @throws Throwable
      */
-    public function show($crudgeneratorId): array |Builder|Collection|status
+    public function show($crudgeneratorId)
     {
-        return $this->service->getModelById($crudgeneratorId);
+        return new StatusResource( $this->service->getModelById( $crudgeneratorId ));
     }
 
     /**
-     * @OA\Patch(
-     *   operationId="updatestatus",
-     *   summary="Update an existing status",
-     *   description="Update an existing status",
-     *   tags={"statuss"},
-     *   path="/api/status/{status_id}",
-     *   @OA\Parameter(ref="#/components/parameters/status--id"),
-     *   @OA\Response(
-     *     response=200,
-     *     description="Successful operation",
-     *       @OA\JsonContent(
-     *       @OA\Property(
-     *       title="data",
-     *       property="data",
-     *       type="object",
-     *       ref="#/components/schemas/status"
-     *       ),
-     *     ),
-     *   ),
-     *   @OA\Response(response="404",description="status not found"),
-     *   @OA\RequestBody(
-     *     description="status to update",
-     *     required=true,
-     *     @OA\MediaType(
-     *       mediaType="application/json",
-     *       @OA\Schema(
-     *        @OA\Property(
-     *        title="data",
-     *        property="data",
-     *        type="object",
-     *        ref="#/components/schemas/status")
-     *      )
-     *     )
-     *   )
-     *
-     * )
-     *
-     * @param UpdatestatusRequest $request
+     * @param UpdateStatusRequest $request
      * @param int $crudgeneratorId
-     * @return array|Builder|Builder[]|Collection|status|status[]
+     * @return array|Status|Collection|Builder
      * @throws Throwable
      */
-    public function update(UpdatestatusRequest $request, int $crudgeneratorId): array |status|Collection|Builder
+    public function update(UpdateStatusRequest $request, int $crudgeneratorId): array |Status|Collection|Builder
     {
-        return $this->service->updateModel($request->validated('data'), $crudgeneratorId);
+        return $this->service->updateModel($request->validated(), $crudgeneratorId);
 
     }
 
     /**
-     * @OA\Delete(
-     *  path="/api/status/{status_id}",
-     *  summary="Delete a status",
-     *  description="Delete a status",
-     *  operationId="destroystatus",
-     *  tags={"statuss"},
-     *   @OA\Response(
-     *     response=200,
-     *     description="Successful operation",
-     *       @OA\JsonContent(
-     *       @OA\Property(
-     *       title="data",
-     *       property="data",
-     *       type="object",
-     *       ref="#/components/schemas/status"
-     *       ),
-     *     ),
-     *   ),
-     *  @OA\Parameter(ref="#/components/parameters/status--id"),
-     *  @OA\Response(response=204,description="No content"),
-     *  @OA\Response(response=404,description="status not found"),
-     * )
-     *
      * @param int $crudgeneratorId
-     * @return array|Builder|Builder[]|Collection|status|status[]
+     * @return array|Builder|Collection|Status
      * @throws Throwable
      */
-    public function destroy(int $crudgeneratorId): array |Builder|Collection|status
+    public function destroy(int $crudgeneratorId): array |Builder|Collection|Status
     {
         return $this->service->deleteModel($crudgeneratorId);
     }

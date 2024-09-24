@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class UserRoles extends Model
+class UserRoles extends BaseModel
 {
-    use HasFactory;
-
+    protected $fillable = [
+        'role_code',
+        'user_id',
+        'status',
+    ];
     protected $guarded = [];
 
-    public function user(): object
+    public $translatable = [];
+
+    public function users(): object
     {
         return $this->belongsTo(User::class);
     }

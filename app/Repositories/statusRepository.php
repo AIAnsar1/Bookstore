@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Models\status;
+use App\Models\Status;
 
-class statusRepository extends BaseRepository
+class StatusRepository extends BaseRepository
 {
-    public function __construct(status $model)
+    public function __construct(Status $model)
     {
         parent::__construct($model);
     }

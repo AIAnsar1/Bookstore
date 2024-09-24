@@ -13,13 +13,23 @@ class VerificationMail extends Mailable
 
     protected array $data;
 
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
     public function __construct($data)
     {
         $this->data = $data;
     }
 
-    public function build()
+    /**
+     * Build the message.
+     *
+     * @return $this
+     */
+    public function build(): mixed
     {
-        return $this->to($this->data['to'])->subject('Email Verification')->markdown('mail.verification',$this->data);
+        return $this->to($this->data['to'])->subject('Email Verification')->markdown('mail.verification', $this->data);
     }
 }

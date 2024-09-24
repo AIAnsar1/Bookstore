@@ -1,16 +1,37 @@
 <?php
 
-namespace App\Interfaces;
+namespace App\interfaces;
 
 interface IBaseRepository
 {
-    public function paginatedList($data = []);
+    /**
+     * @param array $data
+     * @return mixed
+     */
+    public function paginatedList(array $data): mixed;
 
-    public function create($data);
+    /**
+     * @param array $data
+     * @return mixed
+     */
+    public function create(array $data): mixed;
 
-    public function update($data, $id);
+    /**
+     * @param array $data
+     * @param int $id
+     * @return mixed
+     */
+    public function update(array $data, int $id): mixed;
 
-    public function delete($id);
+    /**
+     * @param int $id
+     * @return mixed
+     */
+    public function delete(int $id): mixed;
 
-    public function findById($id);
+    /**
+     * @param int $id
+     * @return mixed
+     */
+    public function findById(int $id): mixed;
 }
