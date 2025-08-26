@@ -17,11 +17,7 @@ class Author extends BaseModel
         'description',
     ];
 
-    protected $casts = [
-        'name' => 'array',
-        'photo' => 'array',
-        'description' => 'array',
-    ];
+    protected $casts = [];
 
     public function products()
     {

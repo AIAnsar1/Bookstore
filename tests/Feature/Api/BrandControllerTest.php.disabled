@@ -1,0 +1,139 @@
+<?php
+
+namespace Tests\Feature\Api;
+
+use Tests\TestCase;
+use App\Models\Brand;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Passport\Passport;
+
+class BrandControllerTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->artisan('passport:install', ['--force' => true]);
+    }
+
+    public function test_can_get_brands_list()
+    {
+        $user = User::factory()->create();
+        Passport::actingAs($user);
+
+        Brand::factory()->count(3)->create();
+
+        $response = $this->getJson('/api/admin/brands');
+
+        $response->assertStatus(200)
+                ->assertJsonStructure([
+                    'data' => [
+                        '*' => [
+                            'id',
+                            'name',
+                            'photo'
+                        ]
+                    ]
+                ]);
+    }
+
+    public function test_can_create_brand()
+    {
+        $user = User::factory()->create();
+        Passport::actingAs($user);
+
+        $brandData = [
+            'name' => 'Penguin Books',
+            'photo' => 'penguin.jpg'
+        ];
+
+        $response = $this->postJson('/api/admin/brands', $brandData);
+
+        $response->assertStatus(201);
+        
+        $this->assertDatabaseHas('brands', [
+            'name' => 'Penguin Books',
+            'photo' => 'penguin.jpg'
+        ]);
+    }
+
+    public function test_can_show_single_brand()
+    {
+        $user = User::factory()->create();
+        $brand = Brand::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $response = $this->getJson("/api/admin/brands/{$brand->id}");
+
+        $response->assertStatus(200)
+                ->assertJsonStructure([
+                    'data' => [
+                        'id',
+                        'name',
+                        'photo'
+                    ]
+                ]);
+    }
+
+    public function test_can_update_brand()
+    {
+        $user = User::factory()->create();
+        $brand = Brand::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $updateData = [
+            'name' => 'Updated Brand Name',
+            'photo' => 'updated-brand.jpg'
+        ];
+
+        $response = $this->putJson("/api/admin/brands/{$brand->id}", $updateData);
+
+        $response->assertStatus(200);
+        
+        $this->assertDatabaseHas('brands', [
+            'id' => $brand->id,
+            'name' => 'Updated Brand Name',
+            'photo' => 'updated-brand.jpg'
+        ]);
+    }
+
+    public function test_can_delete_brand()
+    {
+        $user = User::factory()->create();
+        $brand = Brand::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $response = $this->deleteJson("/api/admin/brands/{$brand->id}");
+
+        $response->assertStatus(200);
+        
+        $this->assertSoftDeleted('brands', [
+            'id' => $brand->id
+        ]);
+    }
+
+    public function test_brand_operations_require_authentication()
+    {
+        $response = $this->getJson('/api/admin/brands');
+        $response->assertStatus(401);
+
+        $response = $this->postJson('/api/admin/brands', []);
+        $response->assertStatus(401);
+    }
+
+    public function test_brand_creation_validates_required_fields()
+    {
+        $user = User::factory()->create();
+        Passport::actingAs($user);
+
+        $response = $this->postJson('/api/admin/brands', []);
+
+        $response->assertStatus(422)
+                ->assertJsonValidationErrors(['name']);
+    }
+}

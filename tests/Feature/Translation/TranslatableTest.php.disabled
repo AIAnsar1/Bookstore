@@ -1,0 +1,157 @@
+<?php
+
+namespace Tests\Feature\Translation;
+
+use Tests\TestCase;
+use App\Models\Product;
+use App\Models\Author;
+use App\Models\Category;
+use App\Models\Country;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+class TranslatableTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_product_translations_work()
+    {
+        $product = Product::factory()->create([
+            'title' => [
+                'en' => 'English Title',
+                'ru' => 'Русское название',
+                'uz' => 'O\'zbek nomi'
+            ],
+            'description' => [
+                'en' => 'English description',
+                'ru' => 'Русское описание',
+                'uz' => 'O\'zbek tavsifi'
+            ]
+        ]);
+
+        // Test getting translations
+        $this->assertEquals('English Title', $product->getTranslation('title', 'en'));
+        $this->assertEquals('Русское название', $product->getTranslation('title', 'ru'));
+        $this->assertEquals('O\'zbek nomi', $product->getTranslation('title', 'uz'));
+
+        // Test fallback to default locale
+        app()->setLocale('en');
+        $this->assertEquals('English Title', $product->title);
+
+        app()->setLocale('ru');
+        $this->assertEquals('Русское название', $product->title);
+    }
+
+    public function test_author_translations_work()
+    {
+        $author = Author::factory()->create([
+            'name' => [
+                'en' => 'Stephen King',
+                'ru' => 'Стивен Кинг',
+                'uz' => 'Stiven King'
+            ],
+            'description' => [
+                'en' => 'Horror writer',
+                'ru' => 'Писатель ужасов',
+                'uz' => 'Qo\'rqinchli yozuvchi'
+            ]
+        ]);
+
+        $this->assertEquals('Stephen King', $author->getTranslation('name', 'en'));
+        $this->assertEquals('Стивен Кинг', $author->getTranslation('name', 'ru'));
+        $this->assertEquals('Horror writer', $author->getTranslation('description', 'en'));
+    }
+
+    public function test_category_translations_work()
+    {
+        $category = Category::factory()->create([
+            'name' => [
+                'en' => 'Fiction',
+                'ru' => 'Художественная литература',
+                'uz' => 'Badiiy adabiyot'
+            ]
+        ]);
+
+        $this->assertEquals('Fiction', $category->getTranslation('name', 'en'));
+        $this->assertEquals('Художественная литература', $category->getTranslation('name', 'ru'));
+        $this->assertEquals('Badiiy adabiyot', $category->getTranslation('name', 'uz'));
+    }
+
+    public function test_country_translations_work()
+    {
+        $country = Country::factory()->create([
+            'country_info' => [
+                'en' => 'United States',
+                'ru' => 'Соединенные Штаты',
+                'uz' => 'Amerika Qo\'shma Shtatlari'
+            ]
+        ]);
+
+        $this->assertEquals('United States', $country->getTranslation('country_info', 'en'));
+        $this->assertEquals('Соединенные Штаты', $country->getTranslation('country_info', 'ru'));
+        $this->assertEquals('Amerika Qo\'shma Shtatlari', $country->getTranslation('country_info', 'uz'));
+    }
+
+    public function test_translation_fallback_behavior()
+    {
+        $product = Product::factory()->create([
+            'title' => [
+                'en' => 'English Title',
+                'ru' => 'Русское название'
+                // No Uzbek translation
+            ]
+        ]);
+
+        // Should fallback to default locale when translation doesn't exist
+        $this->assertEquals('English Title', $product->getTranslation('title', 'uz', false));
+    }
+
+    public function test_can_set_translations()
+    {
+        $product = Product::factory()->create();
+
+        $product->setTranslation('title', 'en', 'New English Title');
+        $product->setTranslation('title', 'ru', 'Новое русское название');
+        $product->save();
+
+        $this->assertEquals('New English Title', $product->getTranslation('title', 'en'));
+        $this->assertEquals('Новое русское название', $product->getTranslation('title', 'ru'));
+    }
+
+    public function test_can_get_all_translations()
+    {
+        $product = Product::factory()->create([
+            'title' => [
+                'en' => 'English Title',
+                'ru' => 'Русское название',
+                'uz' => 'O\'zbek nomi'
+            ]
+        ]);
+
+        $translations = $product->getTranslations('title');
+
+        $this->assertIsArray($translations);
+        $this->assertEquals('English Title', $translations['en']);
+        $this->assertEquals('Русское название', $translations['ru']);
+        $this->assertEquals('O\'zbek nomi', $translations['uz']);
+    }
+
+    public function test_locale_switching_affects_model_attributes()
+    {
+        $product = Product::factory()->create([
+            'title' => [
+                'en' => 'English Title',
+                'ru' => 'Русское название'
+            ]
+        ]);
+
+        // Test with English locale
+        app()->setLocale('en');
+        $product = $product->fresh();
+        $this->assertEquals('English Title', $product->title);
+
+        // Test with Russian locale
+        app()->setLocale('ru');
+        $product = $product->fresh();
+        $this->assertEquals('Русское название', $product->title);
+    }
+}

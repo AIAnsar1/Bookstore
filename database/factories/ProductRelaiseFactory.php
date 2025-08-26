@@ -17,7 +17,17 @@ class ProductRelaiseFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => [
+                'en' => $this->faker->sentence(3),
+                'ru' => $this->faker->sentence(3),
+            ],
+            'description' => [
+                'en' => $this->faker->paragraph(),
+                'ru' => $this->faker->paragraph(),
+            ],
+            'pdf' => $this->faker->url() . '.pdf',
+            'status_price' => $this->faker->randomFloat(2, 5, 100),
+            'product_id' => \App\Models\Product::factory(),
         ];
     }
 }

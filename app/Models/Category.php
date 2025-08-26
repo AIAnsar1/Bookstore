@@ -15,9 +15,7 @@ class Category extends BaseModel
         'photo',
     ];
 
-    protected $casts = [
-        'name' => 'array',
-    ];
+    protected $casts = [];
     public function parents()
     {
         return $this->belongsTo(self::class, 'parent_id', 'id');
@@ -25,7 +23,7 @@ class Category extends BaseModel
 
     public function subCategories()
     {
-        return $this->hasMany(Category::class, 'id', 'parent_id');
+        return $this->hasMany(Category::class, 'parent_id', 'id');
     }
 
     public function products()

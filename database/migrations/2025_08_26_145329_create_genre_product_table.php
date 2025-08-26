@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('countries', function (Blueprint $table) {
+        Schema::create('genre_product', function (Blueprint $table) {
             $table->id();
-            $table->json('country_info');
-            $table->unsignedBigInteger('parent_id')->nullable();
-            $table->foreign('parent_id')->references('id')->on('countries')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('genre_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('countries');
+        Schema::dropIfExists('genre_product');
     }
 };

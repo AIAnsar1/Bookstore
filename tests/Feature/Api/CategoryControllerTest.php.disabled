@@ -1,0 +1,178 @@
+<?php
+
+namespace Tests\Feature\Api;
+
+use Tests\TestCase;
+use App\Models\Category;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Passport\Passport;
+
+class CategoryControllerTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->artisan('passport:install', ['--force' => true]);
+    }
+
+    public function test_can_get_categories_list()
+    {
+        $user = User::factory()->create();
+        Passport::actingAs($user);
+
+        Category::factory()->count(3)->create();
+
+        $response = $this->getJson('/api/admin/categories');
+
+        $response->assertStatus(200)
+                ->assertJsonStructure([
+                    'data' => [
+                        '*' => [
+                            'id',
+                            'name',
+                            'photo',
+                            'parent_id'
+                        ]
+                    ]
+                ]);
+    }
+
+    public function test_can_create_category()
+    {
+        $user = User::factory()->create();
+        Passport::actingAs($user);
+
+        $categoryData = [
+            'name' => [
+                'en' => 'Fiction',
+                'ru' => 'Художественная литература',
+                'uz' => 'Badiiy adabiyot'
+            ],
+            'photo' => 'fiction.jpg',
+            'parent_id' => null
+        ];
+
+        $response = $this->postJson('/api/admin/categories', $categoryData);
+
+        $response->assertStatus(201);
+        
+        $this->assertDatabaseHas('categories', [
+            'photo' => 'fiction.jpg',
+            'parent_id' => null
+        ]);
+    }
+
+    public function test_can_create_subcategory()
+    {
+        $user = User::factory()->create();
+        $parentCategory = Category::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $categoryData = [
+            'name' => [
+                'en' => 'Science Fiction',
+                'ru' => 'Научная фантастика',
+                'uz' => 'Ilmiy fantastika'
+            ],
+            'photo' => 'sci-fi.jpg',
+            'parent_id' => $parentCategory->id
+        ];
+
+        $response = $this->postJson('/api/admin/categories', $categoryData);
+
+        $response->assertStatus(201);
+        
+        $this->assertDatabaseHas('categories', [
+            'photo' => 'sci-fi.jpg',
+            'parent_id' => $parentCategory->id
+        ]);
+    }
+
+    public function test_can_show_single_category()
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $response = $this->getJson("/api/admin/categories/{$category->id}");
+
+        $response->assertStatus(200)
+                ->assertJsonStructure([
+                    'data' => [
+                        'id',
+                        'name',
+                        'photo',
+                        'parent_id'
+                    ]
+                ]);
+    }
+
+    public function test_can_update_category()
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $updateData = [
+            'name' => [
+                'en' => 'Updated Category',
+                'ru' => 'Обновленная категория',
+                'uz' => 'Yangilangan kategoriya'
+            ],
+            'photo' => 'updated.jpg'
+        ];
+
+        $response = $this->putJson("/api/admin/categories/{$category->id}", $updateData);
+
+        $response->assertStatus(200);
+        
+        $this->assertDatabaseHas('categories', [
+            'id' => $category->id,
+            'photo' => 'updated.jpg'
+        ]);
+    }
+
+    public function test_can_delete_category()
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $response = $this->deleteJson("/api/admin/categories/{$category->id}");
+
+        $response->assertStatus(200);
+        
+        $this->assertSoftDeleted('categories', [
+            'id' => $category->id
+        ]);
+    }
+
+    public function test_category_creation_requires_authentication()
+    {
+        $categoryData = [
+            'name' => ['en' => 'Test Category']
+        ];
+
+        $response = $this->postJson('/api/admin/categories', $categoryData);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_category_creation_validates_required_fields()
+    {
+        $user = User::factory()->create();
+        Passport::actingAs($user);
+
+        $response = $this->postJson('/api/admin/categories', []);
+
+        $response->assertStatus(422)
+                ->assertJsonValidationErrors(['name']);
+    }
+}

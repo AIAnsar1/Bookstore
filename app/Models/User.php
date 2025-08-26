@@ -4,15 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Passport\HasApiTokens;
+// use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Translatable\HasTranslations;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class User extends BaseModel
+class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, HasTranslations;
+    use HasFactory, Notifiable, HasRoles, HasTranslations;
 
     public $translatable = [];
 
@@ -44,20 +45,18 @@ class User extends BaseModel
 
     public function getActiveRole()
     {
-        return $this->roles()->where('status', GeneralStatus::STATUS_ACTIVE)->first();
+        return $this->roles()->where('status', \App\Constants\GeneralStatus::STATUS_ACTIVE)->first();
     }
 
     public function scopeFilter($query, $data)
     {
-        if (isset($data['status'])) {
-            $query->whereHas('roles', function ($q) use ($data) {
-                $q->where('status', $data['status']);
-            });
+        if (isset($data['firstname'])) {
+            $query->where('firstname', 'like', '%' . $data['firstname'] . '%');
         }
 
         if (isset($data['role'])) {
             $query->whereHas('roles', function ($q) use ($data) {
-                $q->where('role_code', $data['role']);
+                $q->where('name', $data['role']);
             });
         }
 
@@ -66,7 +65,7 @@ class User extends BaseModel
 
     public function countries()
     {
-        return $this->belongsTo(Country::class);
+        return $this->belongsTo(Country::class, 'country_id');
     }
 
     public function roles(): BelongsToMany

@@ -12,9 +12,7 @@ class Country extends BaseModel
         'parent_id',
     ];
 
-    protected $casts = [
-        'country_info' => 'array',
-    ];
+    protected $casts = [];
 
     public function regions()
     {

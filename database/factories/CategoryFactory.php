@@ -17,7 +17,25 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => [
+                'en' => $this->faker->words(2, true),
+                'ru' => $this->faker->words(2, true),
+                'uz' => $this->faker->words(2, true),
+            ],
+            'photo' => $this->faker->imageUrl(200, 200, 'business'),
+            'parent_id' => null, // Will be set in specific factory states
         ];
+    }
+
+    /**
+     * Create a subcategory with parent
+     */
+    public function withParent($parentId = null): static
+    {
+        return $this->state(function (array $attributes) use ($parentId) {
+            return [
+                'parent_id' => $parentId ?? \App\Models\Category::factory()->create()->id,
+            ];
+        });
     }
 }

@@ -1,0 +1,186 @@
+<?php
+
+namespace Tests\Feature\Api;
+
+use Tests\TestCase;
+use App\Models\Country;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Passport\Passport;
+
+class CountryControllerTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->artisan('passport:install', ['--force' => true]);
+    }
+
+    public function test_can_get_countries_list()
+    {
+        $user = User::factory()->create();
+        Passport::actingAs($user);
+
+        Country::factory()->count(3)->create();
+
+        $response = $this->getJson('/api/admin/countries');
+
+        $response->assertStatus(200)
+                ->assertJsonStructure([
+                    'data' => [
+                        '*' => [
+                            'id',
+                            'country_info',
+                            'parent_id'
+                        ]
+                    ]
+                ]);
+    }
+
+    public function test_can_create_country()
+    {
+        $user = User::factory()->create();
+        Passport::actingAs($user);
+
+        $countryData = [
+            'country_info' => [
+                'en' => 'United States',
+                'ru' => 'Соединенные Штаты',
+                'uz' => 'Amerika Qo\'shma Shtatlari'
+            ]
+        ];
+
+        $response = $this->postJson('/api/admin/countries', $countryData);
+
+        $response->assertStatus(201);
+        
+        $this->assertDatabaseHas('countries', [
+            'country_info->en' => 'United States'
+        ]);
+    }
+
+    public function test_can_create_region()
+    {
+        $user = User::factory()->create();
+        $country = Country::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $regionData = [
+            'country_info' => [
+                'en' => 'California',
+                'ru' => 'Калифорния',
+                'uz' => 'Kaliforniya'
+            ],
+            'parent_id' => $country->id
+        ];
+
+        $response = $this->postJson('/api/admin/countries', $regionData);
+
+        $response->assertStatus(201);
+        
+        $this->assertDatabaseHas('countries', [
+            'country_info->en' => 'California',
+            'parent_id' => $country->id
+        ]);
+    }
+
+    public function test_can_show_single_country()
+    {
+        $user = User::factory()->create();
+        $country = Country::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $response = $this->getJson("/api/admin/countries/{$country->id}");
+
+        $response->assertStatus(200)
+                ->assertJsonStructure([
+                    'data' => [
+                        'id',
+                        'country_info',
+                        'parent_id'
+                    ]
+                ]);
+    }
+
+    public function test_can_update_country()
+    {
+        $user = User::factory()->create();
+        $country = Country::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $updateData = [
+            'country_info' => [
+                'en' => 'Updated Country',
+                'ru' => 'Обновленная страна',
+                'uz' => 'Yangilangan mamlakat'
+            ]
+        ];
+
+        $response = $this->putJson("/api/admin/countries/{$country->id}", $updateData);
+
+        $response->assertStatus(200);
+        
+        $this->assertDatabaseHas('countries', [
+            'id' => $country->id,
+            'country_info->en' => 'Updated Country'
+        ]);
+    }
+
+    public function test_can_delete_country()
+    {
+        $user = User::factory()->create();
+        $country = Country::factory()->create();
+        
+        Passport::actingAs($user);
+
+        $response = $this->deleteJson("/api/admin/countries/{$country->id}");
+
+        $response->assertStatus(200);
+        
+        $this->assertSoftDeleted('countries', [
+            'id' => $country->id
+        ]);
+    }
+
+    public function test_can_filter_countries()
+    {
+        $user = User::factory()->create();
+        $country = Country::factory()->create(['parent_id' => null]);
+        $region = Country::factory()->create(['parent_id' => $country->id]);
+        
+        Passport::actingAs($user);
+
+        // Test filtering for countries only
+        $response = $this->getJson('/api/admin/countries?country=true');
+        $response->assertStatus(200);
+
+        // Test filtering for regions only
+        $response = $this->getJson('/api/admin/countries?region=true');
+        $response->assertStatus(200);
+    }
+
+    public function test_country_operations_require_authentication()
+    {
+        $response = $this->getJson('/api/admin/countries');
+        $response->assertStatus(401);
+
+        $response = $this->postJson('/api/admin/countries', []);
+        $response->assertStatus(401);
+    }
+
+    public function test_country_creation_validates_required_fields()
+    {
+        $user = User::factory()->create();
+        Passport::actingAs($user);
+
+        $response = $this->postJson('/api/admin/countries', []);
+
+        $response->assertStatus(422)
+                ->assertJsonValidationErrors(['country_info']);
+    }
+}

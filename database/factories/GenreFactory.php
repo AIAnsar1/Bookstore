@@ -17,7 +17,10 @@ class GenreFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => [
+                'en' => $this->faker->word(),
+                'ru' => $this->faker->word(),
+            ],
         ];
     }
 }

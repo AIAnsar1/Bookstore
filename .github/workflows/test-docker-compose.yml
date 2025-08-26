@@ -1,0 +1,72 @@
+name: Test Docker Compose
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  sail-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Compose V2 for Sail
+        run: echo 'export SAIL_DOCKER_COMPOSE_COMMAND="docker compose"' >> $GITHUB_ENV
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: Install RoadRunner binary
+        run: ./vendor/bin/rr get-binary
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Build Sail containers
+        run: ./vendor/bin/sail build --no-cache
+
+      - name: Start Sail containers
+        run: ./vendor/bin/sail up -d
+
+      - name: Wait for PostgreSQL
+        run: |
+          until ./vendor/bin/sail exec -T pgsql pg_isready -U laravel; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+        timeout-minutes: 2
+
+      - name: Wait for Redis
+        run: |
+          until ./vendor/bin/sail exec -T redis redis-cli ping | grep PONG; do
+            echo "Waiting for Redis..."
+            sleep 2
+          done
+        timeout-minutes: 2
+
+      - name: Set permissions for .env, storage и bootstrap/cache
+        run: ./vendor/bin/sail exec -T laravel.test chmod 666 .env && ./vendor/bin/sail exec -T laravel.test chmod -R 777 storage bootstrap/cache
+
+      - name: Generate app key
+        run: ./vendor/bin/sail artisan key:generate
+
+      - name: Run migrations and seed (if needed)
+        run: ./vendor/bin/sail artisan migrate:fresh --seed --force
+
+      - name: Clear caches
+        run: ./vendor/bin/sail artisan config:cache && ./vendor/bin/sail artisan route:cache && ./vendor/bin/sail artisan view:cache
+
+      - name: Boot Octane for tests (if tests hit API endpoints)
+        run: ./vendor/bin/sail artisan octane:start --server=roadrunner --port=8000 &
+        timeout-minutes: 1
+        continue-on-error: true
+
+      - name: Run tests
+        run: ./vendor/bin/sail test --parallel
+
+      - name: Stop Sail containers
+        if: always()
+        run: ./vendor/bin/sail down -v

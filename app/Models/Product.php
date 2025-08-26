@@ -22,11 +22,7 @@ class Product extends BaseModel
         'author_id',
     ];
 
-    protected $casts = [
-        'title' => 'array',
-        'description' => 'array',
-        'photo' => 'array',
-    ];
+    protected $casts = [];
 
     public function user()
     {

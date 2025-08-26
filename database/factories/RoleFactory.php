@@ -17,7 +17,28 @@ class RoleFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->randomElement(['admin', 'user', 'moderator', 'editor']),
+            'guard_name' => 'web',
         ];
+    }
+
+    /**
+     * Create admin role
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'admin',
+        ]);
+    }
+
+    /**
+     * Create user role
+     */
+    public function user(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'user',
+        ]);
     }
 }
