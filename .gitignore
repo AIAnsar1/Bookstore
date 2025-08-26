@@ -16,4 +16,23 @@ yarn-error.log
 /.vscode
 composer.lock
 
-public/uploads/*
+public/uploads/*rr
+.rr.yaml
+
+# CrudGenerator files (local development only)
+app/Console/Commands/Generator/CrudGenerator.php
+app/Console/Commands/Generator/CrudRemove.php
+app/Events/CrudGeneratorEvent.php
+app/Http/Controllers/CrudGeneratorController.php
+app/Http/Requests/StoreRequest/StoreCrudGeneratorRequest.php
+app/Http/Requests/UpdateRequest/UpdateCrudGeneratorRequest.php
+app/Http/Resources/CrudGeneratorResource.php
+app/Http/Resources/Collection/CrudGeneratorCollection.php
+app/Jobs/CrudGeneratorJob.php
+app/Listeners/CrudGeneratorListener.php
+app/Models/CrudGenerator.php
+app/Observers/CrudGeneratorObserver.php
+app/Repositories/CrudGeneratorRepository.php
+app/Services/CrudGeneratorService.php
+database/factories/CrudGeneratorFactory.php
+database/seeders/CrudGeneratorSeeder.php
