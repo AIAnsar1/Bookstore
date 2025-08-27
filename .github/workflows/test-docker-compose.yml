@@ -65,7 +65,7 @@ jobs:
         continue-on-error: true
 
       - name: Run tests
-        run: ./vendor/bin/sail test --parallel
+        run: ./vendor/bin/sail test
 
       - name: Stop Sail containers
         if: always()
